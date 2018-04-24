@@ -98,7 +98,7 @@ class ChangeBackground(object):
     def __init__(self, textures):
         self.textures = textures
 
-    def __call__(self, image):
+    def __call__(self, image, std = 5):
         h, w = image.shape[:2]
         maxvals = len(self.textures)
         text_idx = randint(0,maxvals-1)
@@ -107,4 +107,5 @@ class ChangeBackground(object):
             for j in range(w):
                 if (image[i,j,:] >= [245, 245, 245]).all():
                     image[i,j,:] = self.textures[text_idx][i,j,:]'''
+        image += np.random.randint(0, std, size=image.shape)
         return image
