@@ -8,16 +8,14 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
 from random import randint
 from os import listdir
-from PIL import Image
 
 # Ignore warnings
 import warnings
 warnings.filterwarnings("ignore")
 
-
 def createDataCSV(fruits_file, textures_file, fruits_path, textures_path):
     # If the fruits csv does not exist, create it
-    if (not os.path.isfile(dataset_file)):
+    if (os.stat(dataset_file).st_size == 0):
         # Create the fruits name list
         names = []
         for fruit_class in os.listdir(os.path.join(fruits_path, 'Training')):
@@ -36,7 +34,7 @@ def createDataCSV(fruits_file, textures_file, fruits_path, textures_path):
         del(df)
 
     # If the textures csv does not exist, create it
-    if (not os.path.isfile(textures_file)):
+    if (os.stat(textures_file).st_size == 0):
         df = pd.DataFrame(columns=['Path'])
 
         for t in os.listdir(textures_path):
@@ -97,10 +95,26 @@ class TexturesDataset(Dataset):
 
 class ChangeBackground(object):
 
-
     def __init__(self, textures):
         self.textures = textures
 
+    def __call__(self, image, std = 5):
+        h, w = image.shape[:2]
+        maxvals = len(self.textures)
+        text_idx = randint(0,maxvals-1)
+        image = np.where(image >= [240, 240, 240], self.textures[text_idx], image)
+        '''for i in range(h):
+            for j in range(w):
+                if (image[i,j,:] >= [245, 245, 245]).all():
+                    image[i,j,:] = self.textures[text_idx][i,j,:]'''
+        image += np.random.randint(0, std, size=image.shape)
+        return image
+
+class ChangeBackground(object):
+
+
+    def __init__(self, textures):
+        self.textures = textures
 
     def __call__(self, image):
         maxvals = len(self.textures)
