@@ -147,4 +147,6 @@ class ChangeBackground(object):
         result[start_res_x:end_res_x,start_res_y:end_res_y] = \
             np.where(image[start_img_x:end_img_x,start_img_y:end_img_y] >= [240,240,240], \
             result[start_res_x:end_res_x,start_res_y:end_res_y], image[start_img_x:end_img_x,start_img_y:end_img_y])
+        # Divide by 255 and substract 0.5
+        result = (result / 255.0) - 0.5
         return result
