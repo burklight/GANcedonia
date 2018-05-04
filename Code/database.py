@@ -147,6 +147,18 @@ class ChangeBackground(object):
         result[start_res_x:end_res_x,start_res_y:end_res_y] = \
             np.where(image[start_img_x:end_img_x,start_img_y:end_img_y] >= [240,240,240], \
             result[start_res_x:end_res_x,start_res_y:end_res_y], image[start_img_x:end_img_x,start_img_y:end_img_y])
+        low_size = 128
+        res = Image.fromarray(np.array(result))
+        res = res.resize((low_size,low_size), Image.ANTIALIAS)
+        result = np.array(res)
         # Divide by 255 and substract 0.5
         result = (result / 255.0) - 0.5
+        return result
+
+class myReshape(object):
+    
+   # def __init__(self):
+        
+    def __call__(self,image):
+        result = np.transpose(np.transpose(image, (0,2,1)),(1,0,2))
         return result
