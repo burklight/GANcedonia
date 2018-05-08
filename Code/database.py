@@ -48,7 +48,7 @@ def createDataCSV(fruits_file, textures_file, fruits_path, textures_path):
 class FruitsDataset(Dataset):
     """Fruits dataset."""
 
-    def __init__(self, csv_file, cl, transform=None):
+    def __init__(self, csv_file, cl_A, cl_B, transform=None):
         """
         Args:
             csv_file (string): Path to the csv file with annotations.
@@ -56,20 +56,24 @@ class FruitsDataset(Dataset):
                 on a sample.
         """
         aux = pd.read_csv(csv_file)
-        self.fruits_idx = aux[aux['Class'] == cl]
+        self.fruits_A_idx = aux[aux['Class'] == cl_A]
+        self.fruits_B_idx = aux[aux['Class'] == cl_B]
         self.transform = transform
 
     def __len__(self):
-        return len(self.fruits_idx)
+        return min(len(self.fruits_A_idx), len(self.fruits_B_idx))
 
     def __getitem__(self, idx):
-        img_name = self.fruits_idx.iloc[idx, 1]
-        image = io.imread(img_name)
+        img_name_A = self.fruits_A_idx.iloc[idx, 1]
+        image_A = io.imread(img_name_A)
+        img_name_B = self.fruits_B_idx.iloc[idx, 1]
+        image_B = io.imread(img_name_B)
+        result = [image_A,image_B]
 
         if self.transform:
-            image = self.transform(image)
+            result = self.transform(result)
 
-        return image
+        return result
 
 class TexturesDataset(Dataset):
 
@@ -95,25 +99,37 @@ class TexturesDataset(Dataset):
 
         return image
 
+def insert_image(background, image, nsize, start_img_x, start_img_y, end_img_x, end_img_y, start_res_x, start_res_y, end_res_x, end_res_y):
+    img = Image.fromarray(image)
+    img = img.resize((nsize,nsize), Image.ANTIALIAS)
+    image = np.array(img)
+    # Write our image in top of the background
+    result = background.copy()
+    result[start_res_x:end_res_x,start_res_y:end_res_y] = \
+        np.where(image[start_img_x:end_img_x,start_img_y:end_img_y] >= [240,240,240], \
+        result[start_res_x:end_res_x,start_res_y:end_res_y], image[start_img_x:end_img_x,start_img_y:end_img_y])
+    # Resize the image to a lower size
+    low_size = 128
+    res = Image.fromarray(np.array(result))
+    res = res.resize((low_size,low_size), Image.ANTIALIAS)
+    result = np.array(res)
+    # Divide by 255 and substract 0.5
+    result = (result / 255.0) - 0.5
+    return result
+
 class ChangeBackground(object):
 
 
     def __init__(self, textures):
         self.textures = textures
 
-
-    def __call__(self, image):
+    def __call__(self, images):
         maxvals = len(self.textures)
         text_idx = randint(0,maxvals-1) # random selection of the texture background
-        result = self.textures[text_idx] # adquisition of the background
-        h_res, w_res = result.shape[:2]
-        # We resize our image to be 1/4
-        nsize = randint(int(h_res / 4), int(h_res))
-        #img = Image(image)
-        img = Image.fromarray(image)
-        img = img.resize((nsize,nsize), Image.ANTIALIAS)
-        image = np.array(img)
-        h_img, w_img = image.shape[:2]
+        background = self.textures[text_idx] # adquisition of the background
+        h_res, w_res = background.shape[:2]
+        nsize = randint(int(h_res / 4), int(h_res)) # random scaling of the image
+        h_img, w_img = nsize, nsize
         # Generate random position (1/4 outside include)
         start_res_x = randint(int(-h_img/2), int(h_res-h_img/2))
         start_res_y = randint(int(-w_img/2), int(w_res-w_img/2))
@@ -143,22 +159,18 @@ class ChangeBackground(object):
             end_img_y = (end_res_y-start_res_y)
         else:
             end_img_y = w_img
-        # Write our image in the positions selected
-        result[start_res_x:end_res_x,start_res_y:end_res_y] = \
-            np.where(image[start_img_x:end_img_x,start_img_y:end_img_y] >= [240,240,240], \
-            result[start_res_x:end_res_x,start_res_y:end_res_y], image[start_img_x:end_img_x,start_img_y:end_img_y])
-        low_size = 128
-        res = Image.fromarray(np.array(result))
-        res = res.resize((low_size,low_size), Image.ANTIALIAS)
-        result = np.array(res)
-        # Divide by 255 and substract 0.5
-        result = (result / 255.0) - 0.5
-        return result
+        # We genereate both images
+        result_A = insert_image(background, images[0], nsize, start_img_x,
+            start_img_y, end_img_x, end_img_y, start_res_x, start_res_y, end_res_x, end_res_y)
+        result_B = insert_image(background, images[1], nsize, start_img_x,
+            start_img_y, end_img_x, end_img_y, start_res_x, start_res_y, end_res_x, end_res_y)
+        return [result_A, result_B]
+
 
 class myReshape(object):
-    
+
    # def __init__(self):
-        
+
     def __call__(self,image):
         result = np.transpose(np.transpose(image, (0,2,1)),(1,0,2))
         return result
