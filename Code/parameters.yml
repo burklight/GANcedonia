@@ -1,0 +1,20 @@
+input:
+    fruit_1: apple
+    fruit_2: orange
+    input_h: 100
+    input_w: 100
+train:
+    epochs: 100
+    batch_size: 4
+    learning_rate: 0.001
+    beta_1: 0.9
+    beta_2: 0.99
+decay:
+    rate: 0.01
+    epoch_start: 100
+log:
+    save_path: auto
+    sampling_interval: 10
+    saving_image_interval: 20
+resnet:
+    residual_blocks: 3
