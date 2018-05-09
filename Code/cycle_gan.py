@@ -182,10 +182,10 @@ def weights_init(m):
 		torch.nn.init.kaiming_normal(m.weight.data, a=0.05)
 		torch.nn.init.constant_(m.bias.data, 0.0)
 
-if param['log']['save_path']!='auto':
+if param['log']['save_path']=='auto':
 	filepath=os.path.join('Log', strftime("%Y%m%d_%H%M", gmtime()))
 else:
-	filepath=os.path.join('Log','Default')
+	filepath=os.path.join('Log',param['log']['save_path'])
 
 # Create folders if they do not exist
 
