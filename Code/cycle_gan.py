@@ -207,7 +207,7 @@ else:
 
 
 # Define the optimizer for the generator
-lr = param['train']['learning_rate']
+lr = float(param['train']['learning_rate'])
 beta_1 = param['train']['beta_1']
 beta_2 = param['train']['beta_2']
 gan_params = list(G_AB.parameters()) + list(G_BA.parameters())
