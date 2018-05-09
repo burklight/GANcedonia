@@ -232,8 +232,6 @@ n_epochs = param['train']['n_epochs']
 epoch = 0
 start_decay_epoch = param['decay']['epoch_start']
 
-print(type(epoch))
-print(type(start_decay_epoch))
 lr_scheduler_G = torch.optim.lr_scheduler.LambdaLR(optimizer_G, \
 	lr_lambda=lr_update(n_epochs, epoch, start_decay_epoch).decay)
 lr_scheduler_D_A = torch.optim.lr_scheduler.LambdaLR(optimizer_D_A, \
