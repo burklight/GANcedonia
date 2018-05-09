@@ -25,12 +25,12 @@ with open("parameters.yml", 'r') as ymlfile:
 class GANdiscriminator(nn.Module):
 	''' This class implements a PatchGAN discriminator for a 100x100 image.
 		Small modification of the one used in:
-			- Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks
+			- Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks 
 			  Jun-Yan Zhu, 2017'''
-
+	
 	def __init__(self, n_image_channels = 3):
 		super(GANdiscriminator, self).__init__()
-
+				
 		def createLayer(n_filt_in, n_filt_out, ker_size, stride, norm = True, last = False):
 			''' This function creates the differnt convolutional layers, all with same structure'''
 			layers = [nn.Conv2d(n_filt_in, n_filt_out, ker_size, stride=stride)]
@@ -41,8 +41,8 @@ class GANdiscriminator(nn.Module):
 			else:
 				layers.append(nn.LeakyReLU(negative_slope = 0.05, inplace=True)) # we use Leaky ReLU
 			return layers
-
-
+		
+		
 		''' Input number of filters: Image channels
 			Intermediate number of filters: 64*h, with h being the depth of the layer
 			Output number of filters: 1 -> Decision of true or false
@@ -55,47 +55,48 @@ class GANdiscriminator(nn.Module):
 		lasts = [False, False, False, False, True]
 		for i in range(n_layers): # For each layer
 			layers.extend(createLayer(n_filters[i], n_filters[i+1], ker_size, strides[i], last = lasts[i]))
-
+				
 		self.model = nn.Sequential(*layers)
-
-
+		
+	
 	def forward(self, image):
 		return self.model(image)
 
 
-## GENERATOR
 
 class residual_block(nn.Module):
 	''' This class implements the residual block of the RES net we will implement as the generator'''
 	def __init__(self, n_channels):
 		super(residual_block, self).__init__()
-
-		layers = [
+		
+		layers = [ 
 				  nn.ReflectionPad2d(1), # mirroring of 1 for the 3 kernel size convolution
 				  nn.Conv2d(n_channels, n_channels, 3), # the convolution :)
 				  nn.InstanceNorm2d(n_channels), # batch normalization
-				  nn.LeakyReLU(negative_slope=0.05, inplace=True),
+				  nn.LeakyReLU(negative_slope=0.05, inplace=True), 
 				  # We repeat the process
-				  nn.ReflectionPad2d(1),
+				  nn.ReflectionPad2d(1), 
 				  nn.Conv2d(n_channels, n_channels, 3),
 				  nn.InstanceNorm2d(n_channels)
 				 ]
-
+		
 		self.conv_block = nn.Sequential(*layers)
-
+	
 	def forward(self, image):
 		return image + self.conv_block(image)
 
+
+## GENERATOR
 
 class GANgenerator(nn.Module):
 	''' This class implements a RES Net for generating the images
 		Small modification of the one defined in:
 			- Deep Residual Learning for Image Recognition
 			  Kaiming He, 2015'''
-
+	
 	def __init__(self, n_image_channels = 3, n_res_blocks = 9):
 		super(GANgenerator, self).__init__()
-
+		
 		''' High kernel convolution '''
 		n_channels_high = 64
 		layers = [ nn.ReflectionPad2d(3), # mirroring of 3 for the 7 kernel size convolution
@@ -103,42 +104,39 @@ class GANgenerator(nn.Module):
 					nn.InstanceNorm2d(n_channels_high),
 					nn.LeakyReLU(negative_slope=0.05, inplace=True)
 				  ]
-
+		
 		''' Variables for down and up sampling '''
 		n_layers = 2
 		ker_size = 3
 		strides = 2
 		paddings = 1
 		n_filters = [n_channels_high, n_channels_high*2, n_channels_high*4]
-
+		
 		''' Downsampling steps '''
 		for i in range(n_layers): # for each layer
-			layers.extend([ nn.Conv2d(n_filters[i], n_filters[i+1], ker_size, \
-									strides, padding=paddings),
+			layers.extend([ nn.Conv2d(n_filters[i], n_filters[i+1], ker_size,                                     strides, padding=paddings),
 							nn.InstanceNorm2d(n_filters[i+1]),
 							nn.LeakyReLU(negative_slope=0.05, inplace=True)])
-
+		
 		''' Residual blocks '''
 		for i in range(n_res_blocks):
-			layers.extend([residual_block(n_filters[-1])]) # the residual blocks are applied to the
+			layers.extend([residual_block(n_filters[-1])]) # the residual blocks are applied to the 
 														   # last number of channels in the down sampling
-
+		
 		''' Upsampling steps '''
 		for i in range(n_layers): # for each layer
-			layers.extend([ nn.ConvTranspose2d(n_filters[-(i+1)], n_filters[-(i+2)], ker_size, \
-									strides, padding=paddings, output_padding=1),
+			layers.extend([ nn.ConvTranspose2d(n_filters[-(i+1)], n_filters[-(i+2)], ker_size,                                     strides, padding=paddings, output_padding=1),
 							nn.InstanceNorm2d(n_filters[-(i+2)]),
 							nn.LeakyReLU(negative_slope=0.05, inplace=True)])
 		''' Output '''
 		layers.extend([ nn.ReflectionPad2d(3), # mirroring of 3 for the 7 kernel size convolution
 						nn.Conv2d(n_channels_high, n_image_channels, 7), # 64 new channels of 7x7 convolution :)
 						nn.Sigmoid() ])
-
+				
 		self.res_net = nn.Sequential(*layers)
-
+		
 	def forward(self, image):
 		return self.res_net(image)
-
 
 #################
 #	TRAINING	#
@@ -164,7 +162,7 @@ patch = (batch_size, 1 , patch_x, patch_y)
 D_A = GANdiscriminator()
 D_B = GANdiscriminator()
 G_AB = GANgenerator()
-G_BA = GANdiscriminator()
+G_BA = GANgenerator()
 if cuda:
 	D_A = D_A.cuda()
 	D_B = D_B.cuda()
@@ -185,20 +183,20 @@ def weights_init(m):
 		torch.nn.init.constant_(m.bias.data, 0.0)
 
 if param['log']['save_path']!='auto':
-	filepath=strftime("%Y%m%d_%H%M", gmtime())
+	filepath=os.path.join('Log', strftime("%Y%m%d_%H%M", gmtime()))
 else:
-	filepath='log'
+	filepath=os.path.join('Log','Default')
 
 
 if param['load']['load_weights']:
-    G_AB_state = torch.load(os.path.join(filepath,'G_AB','epoch_'+str(param['load']['load_epoch'])+'.pkl'))
-    G_AB.load_state_dict(G_AB_state['state_dict'])
-    G_BA_state = torch.load(os.path.join(filepath,'G_BA','epoch_'+str(param['load']['load_epoch'])+'.pkl'))
-    G_BA.load_state_dict(G_BA_state['state_dict'])
-    D_A_state = torch.load(os.path.join(filepath,'D_A','epoch_'+str(param['load']['load_epoch'])+'.pkl'))
-    D_A.load_state_dict(D_Astate['state_dict'])
-    D_B_state = torch.load(os.path.join(filepath,'D_B','epoch_'+str(param['load']['load_epoch'])+'.pkl'))
-    D_B.load_state_dict(Dstate['state_dict'])
+	G_AB_state = torch.load(os.path.join(filepath,'G_AB','epoch_'+str(param['load']['load_epoch'])+'.pkl'))
+	G_AB.load_state_dict(G_AB_state['state_dict'])
+	G_BA_state = torch.load(os.path.join(filepath,'G_BA','epoch_'+str(param['load']['load_epoch'])+'.pkl'))
+	G_BA.load_state_dict(G_BA_state['state_dict'])
+	D_A_state = torch.load(os.path.join(filepath,'D_A','epoch_'+str(param['load']['load_epoch'])+'.pkl'))
+	D_A.load_state_dict(D_Astate['state_dict'])
+	D_B_state = torch.load(os.path.join(filepath,'D_B','epoch_'+str(param['load']['load_epoch'])+'.pkl'))
+	D_B.load_state_dict(Dstate['state_dict'])
 else:
 	G_AB.apply(weights_init); # He initialization of the weights
 	G_BA.apply(weights_init); # He initialization of the weights
@@ -279,7 +277,7 @@ fruits_file = 'Dataset/dataset_index.csv'
 textures_file = 'Dataset/textures_index.csv'
 textures = db.TexturesDataset(csv_file=textures_file)
 imgs_db = db.FruitsDataset(csv_file=fruits_file, cl_A=param['input']['fruit_1'], cl_B=param['input']['fruit_2'],
-						transform = transforms.Compose([db.ChangeBackground(textures)]))
+						transform = transforms.Compose([db.ChangeBackground(textures),db.myReshape()]))
 
 dataloader = DataLoader(imgs_db, batch_size=batch_size,
 						shuffle=True, num_workers=4)
@@ -312,9 +310,9 @@ alpha_cycle = param['train']['alpha_cycle']
 alpha_identy = param['train']['alpha_identity']
 
 if param['load']['load_weights']:
-    previous_epochs = G_ABstate['epoch']
+	previous_epochs = G_ABstate['epoch']
 else:
-    previous_epochs = 0
+	previous_epochs = 0
 
 start_time = time.time()
 
@@ -410,45 +408,45 @@ for epoch in range(n_epochs):
 		if epoch % param['log']['save_weight_interval'] == 0:
 		# Saving Generator
 			state_G_AB = {
-			    'epoch': epoch+previous_epochs,
-			    'state_dict': G_AB.state_dict(),
-			    'optimizer': optimizer_G.state_dict()
+				'epoch': epoch+previous_epochs,
+				'state_dict': G_AB.state_dict(),
+				'optimizer': optimizer_G.state_dict()
 
 			}
 
 			if not os.path.exists(os.path.join(filepath,'G_AB')):
-			    os.makedirs(os.path.join(filepath,'G_AB'))
+				os.makedirs(os.path.join(filepath,'G_AB'))
 			torch.save(state_G_AB, os.path.join(filepath,'G_AB','epoch_' + str(epoch+1) + '.pkl'))
 
 			state_G_BA = {
-			    'epoch': epoch+previous_epochs,
-			    'state_dict': G_BA.state_dict(),
-			    'optimizer': optimizer_G.state_dict()
+				'epoch': epoch+previous_epochs,
+				'state_dict': G_BA.state_dict(),
+				'optimizer': optimizer_G.state_dict()
 
 			}
 
 			if not os.path.exists(os.path.join(filepath,'G_BA')):
-			    os.makedirs(os.path.join(filepath,'G_BA'))
+				os.makedirs(os.path.join(filepath,'G_BA'))
 			torch.save(state_G_AB, os.path.join(filepath,'G_BA','epoch_' + str(epoch+1) + '.pkl'))
 
 
 			# Saving Discriminator
 			state_D_A = {
-			    'epoch': epoch+previous_epochs+1,
-			    'state_dict': D_A.state_dict(),
-			    'optimizer': optimizer_D_A.state_dict()
+				'epoch': epoch+previous_epochs+1,
+				'state_dict': D_A.state_dict(),
+				'optimizer': optimizer_D_A.state_dict()
 			}
 			if not os.path.exists(os.path.join(filepath,'D_A')):
-			    os.makedirs(os.path.join(filepath,'D_A'))
+				os.makedirs(os.path.join(filepath,'D_A'))
 			torch.save(state_D_A, os.path.join(filepath,'D_A','epoch_' + str(epoch+1) + '.pkl'))
 
 			state_D_B = {
-			    'epoch': epoch+previous_epochs+1,
-			    'state_dict': D.state_dict(),
-			    'optimizer': optimizer_D_B.state_dict()
+				'epoch': epoch+previous_epochs+1,
+				'state_dict': D.state_dict(),
+				'optimizer': optimizer_D_B.state_dict()
 			}
 			if not os.path.exists(os.path.join(filepath,'D_B')):
-			    os.makedirs(os.path.join(filepath,'D_B'))
+				os.makedirs(os.path.join(filepath,'D_B'))
 			torch.save(state_D_B, os.path.join(filepath,'D_B','epoch_' + str(epoch+1) + '.pkl'))
 
 	if param['log']['save_imgs']:
