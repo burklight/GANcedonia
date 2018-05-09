@@ -1,20 +1,30 @@
 input:
-    fruit_1: apple
-    fruit_2: orange
-    input_h: 100
-    input_w: 100
+    fruit_1: Peach
+    fruit_2: Orange
+    img_x: 100
+    img_y: 100
 train:
-    epochs: 100
+    n_epochs: 100
     batch_size: 4
-    learning_rate: 0.001
+    learning_rate: 1e-4
     beta_1: 0.9
     beta_2: 0.99
+    alpha_cycle: 0.5
+    alpha_identity: 0.5
+    patch_x: 26
+    patch_y: 26
+    patch_sep: 25
 decay:
     rate: 0.01
-    epoch_start: 100
+    epoch_start: 50
+load:
+    load_weights: false
+    load_epoch: 50
 log:
+    save_weights: true
+    save_imgs: true
+    save_weight_interval: 10
+    save_image_interval: 10
     save_path: auto
-    sampling_interval: 10
-    saving_image_interval: 20
 resnet:
     residual_blocks: 3
