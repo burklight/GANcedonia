@@ -1,6 +1,6 @@
 input:
-    fruit_1: Peach
-    fruit_2: Orange
+    fruit_1: Orange
+    fruit_2: Peach
     img_x: 128
     img_y: 128
 train:
@@ -27,4 +27,4 @@ log:
     save_image_interval: 10
     save_path: auto
 resnet:
-    residual_blocks: 3
+    residual_blocks: 9

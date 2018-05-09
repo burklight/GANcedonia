@@ -173,5 +173,5 @@ class myReshape(object):
 
     def __call__(self,images):
         result_A = np.transpose(np.transpose(images[0], (0,2,1)),(1,0,2))
-        result_B = np.transpose(np.transpose(images[0], (0,2,1)),(1,0,2))
+        result_B = np.transpose(np.transpose(images[1], (0,2,1)),(1,0,2))
         return [result_A, result_B]

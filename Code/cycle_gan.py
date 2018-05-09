@@ -13,7 +13,7 @@ import time
 import yaml
 import os
 from time import gmtime, strftime
-
+from torchvision.utils import save_image
 
 # Import parameters
 with open("parameters.yml", 'r') as ymlfile:
@@ -25,12 +25,12 @@ with open("parameters.yml", 'r') as ymlfile:
 class GANdiscriminator(nn.Module):
 	''' This class implements a PatchGAN discriminator for a 100x100 image.
 		Small modification of the one used in:
-			- Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks 
+			- Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks
 			  Jun-Yan Zhu, 2017'''
-	
+
 	def __init__(self, n_image_channels = 3):
 		super(GANdiscriminator, self).__init__()
-				
+
 		def createLayer(n_filt_in, n_filt_out, ker_size, stride, norm = True, last = False):
 			''' This function creates the differnt convolutional layers, all with same structure'''
 			layers = [nn.Conv2d(n_filt_in, n_filt_out, ker_size, stride=stride)]
@@ -41,8 +41,8 @@ class GANdiscriminator(nn.Module):
 			else:
 				layers.append(nn.LeakyReLU(negative_slope = 0.05, inplace=True)) # we use Leaky ReLU
 			return layers
-		
-		
+
+
 		''' Input number of filters: Image channels
 			Intermediate number of filters: 64*h, with h being the depth of the layer
 			Output number of filters: 1 -> Decision of true or false
@@ -55,10 +55,10 @@ class GANdiscriminator(nn.Module):
 		lasts = [False, False, False, False, True]
 		for i in range(n_layers): # For each layer
 			layers.extend(createLayer(n_filters[i], n_filters[i+1], ker_size, strides[i], last = lasts[i]))
-				
+
 		self.model = nn.Sequential(*layers)
-		
-	
+
+
 	def forward(self, image):
 		return self.model(image)
 
@@ -68,20 +68,20 @@ class residual_block(nn.Module):
 	''' This class implements the residual block of the RES net we will implement as the generator'''
 	def __init__(self, n_channels):
 		super(residual_block, self).__init__()
-		
-		layers = [ 
+
+		layers = [
 				  nn.ReflectionPad2d(1), # mirroring of 1 for the 3 kernel size convolution
 				  nn.Conv2d(n_channels, n_channels, 3), # the convolution :)
 				  nn.InstanceNorm2d(n_channels), # batch normalization
-				  nn.LeakyReLU(negative_slope=0.05, inplace=True), 
+				  nn.LeakyReLU(negative_slope=0.05, inplace=True),
 				  # We repeat the process
-				  nn.ReflectionPad2d(1), 
+				  nn.ReflectionPad2d(1),
 				  nn.Conv2d(n_channels, n_channels, 3),
 				  nn.InstanceNorm2d(n_channels)
 				 ]
-		
+
 		self.conv_block = nn.Sequential(*layers)
-	
+
 	def forward(self, image):
 		return image + self.conv_block(image)
 
@@ -93,10 +93,10 @@ class GANgenerator(nn.Module):
 		Small modification of the one defined in:
 			- Deep Residual Learning for Image Recognition
 			  Kaiming He, 2015'''
-	
+
 	def __init__(self, n_image_channels = 3, n_res_blocks = 9):
 		super(GANgenerator, self).__init__()
-		
+
 		''' High kernel convolution '''
 		n_channels_high = 64
 		layers = [ nn.ReflectionPad2d(3), # mirroring of 3 for the 7 kernel size convolution
@@ -104,25 +104,25 @@ class GANgenerator(nn.Module):
 					nn.InstanceNorm2d(n_channels_high),
 					nn.LeakyReLU(negative_slope=0.05, inplace=True)
 				  ]
-		
+
 		''' Variables for down and up sampling '''
 		n_layers = 2
 		ker_size = 3
 		strides = 2
 		paddings = 1
 		n_filters = [n_channels_high, n_channels_high*2, n_channels_high*4]
-		
+
 		''' Downsampling steps '''
 		for i in range(n_layers): # for each layer
 			layers.extend([ nn.Conv2d(n_filters[i], n_filters[i+1], ker_size,                                     strides, padding=paddings),
 							nn.InstanceNorm2d(n_filters[i+1]),
 							nn.LeakyReLU(negative_slope=0.05, inplace=True)])
-		
+
 		''' Residual blocks '''
 		for i in range(n_res_blocks):
-			layers.extend([residual_block(n_filters[-1])]) # the residual blocks are applied to the 
+			layers.extend([residual_block(n_filters[-1])]) # the residual blocks are applied to the
 														   # last number of channels in the down sampling
-		
+
 		''' Upsampling steps '''
 		for i in range(n_layers): # for each layer
 			layers.extend([ nn.ConvTranspose2d(n_filters[-(i+1)], n_filters[-(i+2)], ker_size,                                     strides, padding=paddings, output_padding=1),
@@ -132,9 +132,9 @@ class GANgenerator(nn.Module):
 		layers.extend([ nn.ReflectionPad2d(3), # mirroring of 3 for the 7 kernel size convolution
 						nn.Conv2d(n_channels_high, n_image_channels, 7), # 64 new channels of 7x7 convolution :)
 						nn.Sigmoid() ])
-				
+
 		self.res_net = nn.Sequential(*layers)
-		
+
 	def forward(self, image):
 		return self.res_net(image)
 
@@ -186,6 +186,23 @@ if param['log']['save_path']!='auto':
 	filepath=os.path.join('Log', strftime("%Y%m%d_%H%M", gmtime()))
 else:
 	filepath=os.path.join('Log','Default')
+
+# Create folders if they do not exist
+
+if not os.path.exists(os.path.join(filepath,'G_AB')):
+	os.makedirs(os.path.join(filepath,'G_AB'))
+
+if not os.path.exists(os.path.join(filepath,'G_BA')):
+	os.makedirs(os.path.join(filepath,'G_BA'))
+
+if not os.path.exists(os.path.join(filepath,'D_A')):
+	os.makedirs(os.path.join(filepath,'D_A'))
+
+if not os.path.exists(os.path.join(filepath,'D_B')):
+	os.makedirs(os.path.join(filepath,'D_B'))
+
+if not os.path.exists(os.path.join(filepath,'images')):
+	os.makedirs(os.path.join(filepath,'images'))
 
 
 if param['load']['load_weights']:
@@ -261,7 +278,7 @@ class imageBuffer():
 				if random.uniform(0,1) > 0.5:
 					pos = random.randint(0, self.max_size-1)
 					result.append(self.data[pos].clone())
-					self.data[i] = element
+					self.data[pos] = element
 				else:
 					result.append(element)
 		# Return the result as a torch variable
@@ -288,6 +305,7 @@ val_dataloader = DataLoader(imgs_db, batch_size=5,
 def sample_images(folder, epoch):
 	''' Saves a generated sample from the validation set'''
 	imgs = next(iter(val_dataloader))
+	#sample_batched[0][j]
 	img_A = imgs[0]
 	img_B = imgs[1]
 	real_A = Variable(img_A.type(Tensor))
@@ -296,7 +314,7 @@ def sample_images(folder, epoch):
 	fake_A = G_BA(real_B)
 	## Gudardar-les després és cosa d'en Marcel
 	img_sample = torch.cat((real_A.data, fake_B.data, real_B.data, fake_A.data), 0)
-	save_image(img_sample, folder+'/images/'+epoch+'.png', nrow=5, normalize=True)
+	save_image(img_sample, folder+'/images/'+str(epoch)+'.png', nrow=5, normalize=True)
 
 
 valid = Variable(Tensor(np.ones(patch)), requires_grad=False)
@@ -414,8 +432,6 @@ for epoch in range(n_epochs):
 
 			}
 
-			if not os.path.exists(os.path.join(filepath,'G_AB')):
-				os.makedirs(os.path.join(filepath,'G_AB'))
 			torch.save(state_G_AB, os.path.join(filepath,'G_AB','epoch_' + str(epoch+1) + '.pkl'))
 
 			state_G_BA = {
@@ -425,10 +441,7 @@ for epoch in range(n_epochs):
 
 			}
 
-			if not os.path.exists(os.path.join(filepath,'G_BA')):
-				os.makedirs(os.path.join(filepath,'G_BA'))
 			torch.save(state_G_AB, os.path.join(filepath,'G_BA','epoch_' + str(epoch+1) + '.pkl'))
-
 
 			# Saving Discriminator
 			state_D_A = {
@@ -436,17 +449,15 @@ for epoch in range(n_epochs):
 				'state_dict': D_A.state_dict(),
 				'optimizer': optimizer_D_A.state_dict()
 			}
-			if not os.path.exists(os.path.join(filepath,'D_A')):
-				os.makedirs(os.path.join(filepath,'D_A'))
+
 			torch.save(state_D_A, os.path.join(filepath,'D_A','epoch_' + str(epoch+1) + '.pkl'))
 
 			state_D_B = {
 				'epoch': epoch+previous_epochs+1,
-				'state_dict': D.state_dict(),
+				'state_dict': D_B.state_dict(),
 				'optimizer': optimizer_D_B.state_dict()
 			}
-			if not os.path.exists(os.path.join(filepath,'D_B')):
-				os.makedirs(os.path.join(filepath,'D_B'))
+
 			torch.save(state_D_B, os.path.join(filepath,'D_B','epoch_' + str(epoch+1) + '.pkl'))
 
 	if param['log']['save_imgs']:
