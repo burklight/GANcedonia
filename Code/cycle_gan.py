@@ -358,7 +358,7 @@ else:
 for epoch in range(n_epochs):
 	start_time = time.time()
 	print("##########################################################")
-	print("- EPOCH: " + str(epoch)) + "  -  " + time.strftime("%Y%m%d-%H:%M", start_time)
+	print("- EPOCH: " + str(epoch)) + "  -  " + str(time.strftime("%Y%m%d-%H:%M", start_time))
 	print("##########################################################")
 	for i, batch in enumerate(dataloader):
 
@@ -444,7 +444,7 @@ for epoch in range(n_epochs):
 	lr_scheduler_D_A.step()
 	lr_scheduler_D_B.step()
 
-	elapsed_time_epoch = time.strftime("%H:%M:%S", time.gmtime(time.time() - start_time))
+	elapsed_time_epoch = str(time.strftime("%H:%M:%S", time.gmtime(time.time() - start_time)))
 
 	if param['log']['save_losses']:
 		log_losses([epoch, elapsed_time_epoch, loss_identity_A, loss_identity_B, loss_identity, loss_gan_AB, loss_gan_BA, loss_gan, loss_cycle_A, loss_cycle_B, loss_cycle, loss_G, loss_real_A, loss_real_B, loss_fake_A, loss_fake_B, loss_D_A, loss_D_B, loss_D], losses_filepath)
