@@ -417,7 +417,8 @@ for epoch in range(n_epochs):
 
 		# Saving stuff and shit... (marcel ^.^)
 
-		print("Image #: " + str(i*batch_size))
+		if i % param['log']['print_batch_interval'] == 0:
+			print("Image #: " + str(i*batch_size))
 
 	# Update learning rates
 	lr_scheduler_G.step()
