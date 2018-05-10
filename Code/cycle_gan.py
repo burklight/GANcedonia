@@ -131,7 +131,7 @@ class GANgenerator(nn.Module):
 		''' Output '''
 		layers.extend([ nn.ReflectionPad2d(3), # mirroring of 3 for the 7 kernel size convolution
 						nn.Conv2d(n_channels_high, n_image_channels, 7), # 64 new channels of 7x7 convolution :)
-						nn.Sigmoid() ])
+						nn.Tanh() ])
 
 		self.res_net = nn.Sequential(*layers)
 
@@ -312,8 +312,11 @@ def sample_images(folder, epoch):
 	fake_B = G_AB(real_A)
 	real_B = Variable(img_B.type(Tensor))
 	fake_A = G_BA(real_B)
+	recov_A = G_BA(fake_B)
+	recov_B = G_AB(fake_A)
 	## Gudardar-les després és cosa d'en Marcel
-	img_sample = torch.cat((real_A.data, fake_B.data, real_B.data, fake_A.data), 0)
+	img_sample = torch.cat((real_A.data+0.5, fake_B.data+0.5, recov_A.data+0.5, \
+		real_B.data+0.5, fake_A.data+0.5, recov_B.data+0.5), 0)
 	save_image(img_sample, folder+'/images/'+str(epoch)+'.png', nrow=5, normalize=True)
 
 
@@ -375,7 +378,7 @@ for epoch in range(n_epochs):
 		loss_cycle = 0.5*(loss_cycle_A + loss_cycle_B)
 
 		# Total loss
-		loss_total = loss_gan + alpha_cycle * loss_cycle_A #+ alpha_id * loss_identity
+		loss_total = loss_gan + alpha_cycle * loss_cycle_A + alpha_identy * loss_identity
 
 		# Backpropagate the gradient of the loss
 		loss_total.backward()

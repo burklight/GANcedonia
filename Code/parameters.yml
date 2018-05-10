@@ -5,7 +5,7 @@ input:
     img_y: 128
 train:
     n_epochs: 250
-    batch_size: 1
+    batch_size: 4
     learning_rate: 1e-4
     beta_1: 0.9
     beta_2: 0.99
