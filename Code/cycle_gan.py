@@ -447,7 +447,7 @@ for epoch in range(n_epochs):
 	elapsed_time_epoch = str(time.strftime("%H:%M:%S", time.gmtime(time.time() - start_time)))
 
 	if param['log']['save_losses']:
-		log_losses([epoch, elapsed_time_epoch, loss_identity_A.data[0], loss_identity_B.data[0], loss_identity.data[0], loss_gan_AB.data[0], loss_gan_BA.data[0], loss_gan.data[0], loss_cycle_A.data[0], loss_cycle_B.data[0], loss_cycle.data[0], loss_G.data[0], loss_real_A.data[0], loss_real_B.data[0], loss_fake_A.data[0], loss_fake_B.data[0], loss_D_A.data[0], loss_D_B.data[0], loss_D.data[0]], losses_filepath)
+		log_losses([epoch, elapsed_time_epoch, loss_identity_A.item(), loss_identity_B.item(), loss_identity.item(), loss_gan_AB.item(), loss_gan_BA.item(), loss_gan.item(), loss_cycle_A.item(), loss_cycle_B.item(), loss_cycle.item(), loss_G.item(), loss_real_A.item(), loss_real_B.item(), loss_fake_A.item(), loss_fake_B.item(), loss_D_A.item(), loss_D_B.item(), loss_D.item()], losses_filepath)
 
 	# Saving models... (agin marcel ^.^)
 	if param['log']['save_weights']:
