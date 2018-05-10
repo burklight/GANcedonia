@@ -324,7 +324,7 @@ def sample_images(folder, epoch):
 losses_log='losses.csv'
 losses_filepath=os.path.join(filepath, losses_log)
 
-with open(os.path.join(filepath, losses_filepath), "a") as file:
+with open(losses_filepath, "a") as file:
 	csv_header=['Epoch', 'Timestamp', 'loss_identity_A', 'loss_identity_B', 'loss_identity','loss_gan_AB', 'loss_gan_BA', 'loss_gan', 'loss_cycle_A','loss_cycle_B','loss_cycle','loss_G', 'loss_real_A', 'loss_real_B', 'loss_fake_A','loss_fake_B','loss_D_A','loss_D_B','loss_D']
 	writer.writerow(csv_header)
 
