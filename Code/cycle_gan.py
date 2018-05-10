@@ -466,20 +466,3 @@ for epoch in range(n_epochs):
 	if param['log']['save_imgs']:
 		if epoch % param['log']['save_image_interval'] == 0:
 			sample_images(filepath, epoch)
-
-
- # Create some noise
-noise = Tensor(np.random.normal(loc = 0.0, \
-	scale= 0.9, size=batch.shape))
-
-noise = Tensor(np.zeros(batch.shape))
-
-# Generate some images from the noise
-generated = G(noise)
-
-v = generated[1].data.cpu().numpy()
-v = np.transpose(v, (2,1,0))
-
-fig, ax = plt.subplots(figsize=(10,10))
-ax.imshow(v)
-plt.show()
