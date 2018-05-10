@@ -297,10 +297,10 @@ imgs_db = db.FruitsDataset(csv_file=fruits_file, cl_A=param['input']['fruit_1'],
 						transform = transforms.Compose([db.ChangeBackground(textures),db.myReshape()]))
 
 dataloader = DataLoader(imgs_db, batch_size=batch_size,
-						shuffle=True, num_workers=4, drop_last=False)
+						shuffle=True, num_workers=4, drop_last=True)
 
 val_dataloader = DataLoader(imgs_db, batch_size=5,
-						shuffle=True, num_workers=1, drop_last=False)
+						shuffle=True, num_workers=1, drop_last=True)
 
 def sample_images(folder, epoch):
 	''' Saves a generated sample from the validation set'''
