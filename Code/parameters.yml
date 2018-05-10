@@ -24,8 +24,10 @@ log:
     save_weights: true
     save_imgs: true
     save_weight_interval: 10
-    save_image_interval: 10
+    save_image_interval: 1
     save_path: auto
+    save_path_folder_flag: orange_peach
     print_batch_interval: 10
+    save_losses: true
 resnet:
     residual_blocks: 9

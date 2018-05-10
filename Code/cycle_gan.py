@@ -185,7 +185,7 @@ def weights_init(m):
 if param['log']['save_path']=='auto':
 	filepath=os.path.join('Log', strftime("%Y%m%d_%H%M", gmtime()))
 else:
-	filepath=os.path.join('Log',param['log']['save_path'])
+	filepath=os.path.join('Log',(param['log']['save_path']+'_'+param['log']['save_path_folder_flag']))
 
 # Create folders if they do not exist
 
@@ -320,9 +320,25 @@ def sample_images(folder, epoch):
 	save_image(img_sample, folder+'/images/'+str(epoch)+'.png', nrow=5, normalize=True)
 
 
+# Initialize losses csv
+losses_log='losses.csv'
+losses_filepath=os.path.join(filepath, losses_log)
+
+with open(os.path.join(filepath, losses_filepath), "a") as file:
+	csv_header=['Epoch', 'Timestamp', 'loss_identity_A', 'loss_identity_B', 'loss_identity','loss_gan_AB', 'loss_gan_BA', 'loss_gan', 'loss_cycle_A','loss_cycle_B','loss_cycle','loss_G', 'loss_real_A', 'loss_real_B', 'loss_fake_A','loss_fake_B','loss_D_A','loss_D_B','loss_D']
+	writer.writerow(csv_header)
+
+def log_losses(losses_list, losses_filepath):
+	for i in range(len(losses_list)):
+		if (isinstance(lossed_list[i], float)):
+			losses_list[i] = ("%.4f" % i)
+	with open(losses_filepath, "a") as file:
+	    writer = csv.writer(file, delimiter=',')
+	    writer.writerow(losses_list)
+
+
 valid = Variable(Tensor(np.ones(patch)), requires_grad=False)
 fake = Variable(Tensor(np.zeros(patch)), requires_grad=False)
-
 
 
 # Training phase
@@ -335,11 +351,11 @@ if param['load']['load_weights']:
 else:
 	previous_epochs = 0
 
-start_time = time.time()
 
 for epoch in range(n_epochs):
+	start_time = time.time()
 	print("##########################################################")
-	print("- EPOCH: " + str(epoch))
+	print("- EPOCH: " + str(epoch)) + "  -  " time.strftime("%Y%m%d-%H:%M", start_time)
 	print("##########################################################")
 	for i, batch in enumerate(dataloader):
 
@@ -378,10 +394,10 @@ for epoch in range(n_epochs):
 		loss_cycle = 0.5*(loss_cycle_A + loss_cycle_B)
 
 		# Total loss
-		loss_total = loss_gan + alpha_cycle * loss_cycle_A + alpha_identy * loss_identity
+		loss_G = loss_gan + alpha_cycle * loss_cycle_A + alpha_identy * loss_identity
 
 		# Backpropagate the gradient of the loss
-		loss_total.backward()
+		loss_G.backward()
 		optimizer_G.step()
 
 		# -------------- #
@@ -424,6 +440,11 @@ for epoch in range(n_epochs):
 	lr_scheduler_G.step()
 	lr_scheduler_D_A.step()
 	lr_scheduler_D_B.step()
+
+	elapsed_time_epoch = time.strftime("%H:%M:%S", time.gmtime(time.time() - start_time))
+
+	if param['log']['save_losses']:
+		log_losses([epoch, elapsed_time_epoch, loss_identity_A, loss_identity_B, loss_identity, loss_gan_AB, loss_gan_BA, loss_gan, loss_cycle_A, loss_cycle_B, loss_cycle, loss_G, loss_real_A, loss_real_B, loss_fake_A, loss_fake_B, loss_D_A, loss_D_B, loss_D], losses_filepath)
 
 	# Saving models... (agin marcel ^.^)
 	if param['log']['save_weights']:
