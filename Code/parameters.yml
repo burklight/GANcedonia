@@ -26,6 +26,6 @@ log:
     save_weight_interval: 10
     save_image_interval: 10
     save_path: auto
-    print_batch_interval: 100
+    print_batch_interval: 10
 resnet:
     residual_blocks: 9
