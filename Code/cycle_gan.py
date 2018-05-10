@@ -14,6 +14,8 @@ import yaml
 import os
 from time import gmtime, strftime
 from torchvision.utils import save_image
+import csv
+
 
 # Import parameters
 with open("parameters.yml", 'r') as ymlfile:
