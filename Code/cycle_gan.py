@@ -185,7 +185,7 @@ def weights_init(m):
 		torch.nn.init.constant_(m.bias.data, 0.0)
 
 if param['log']['save_path']=='auto':
-	filepath=os.path.join('Log', strftime("%Y%m%d_%H%M", gmtime()))
+	filepath=os.path.join('Log', strftime("%Y%m%d_%H%M", gmtime())+'_'+param['log']['save_path_folder_flag'])
 else:
 	filepath=os.path.join('Log',(param['log']['save_path']+'_'+param['log']['save_path_folder_flag']))
 
@@ -327,7 +327,7 @@ losses_log='losses.csv'
 losses_filepath=os.path.join(filepath, losses_log)
 
 with open(losses_filepath, "a") as file:
-	csv_header=['Epoch', 'Timestamp', 'loss_identity_A', 'loss_identity_B', 'loss_identity','loss_gan_AB', 'loss_gan_BA', 'loss_gan', 'loss_cycle_A','loss_cycle_B','loss_cycle','loss_G', 'loss_real_A', 'loss_real_B', 'loss_fake_A','loss_fake_B','loss_D_A','loss_D_B','loss_D']
+	csv_header=['Epoch', 'Elapsed', 'loss_identity_A', 'loss_identity_B', 'loss_identity','loss_gan_AB', 'loss_gan_BA', 'loss_gan', 'loss_cycle_A','loss_cycle_B','loss_cycle','loss_G', 'loss_real_A', 'loss_real_B', 'loss_fake_A','loss_fake_B','loss_D_A','loss_D_B','loss_D']
 	writer = csv.writer(file, delimiter=',')
 	writer.writerow(csv_header)
 
@@ -447,7 +447,7 @@ for epoch in range(n_epochs):
 	elapsed_time_epoch = str(time.strftime("%H:%M:%S", time.gmtime(time.time() - start_time)))
 
 	if param['log']['save_losses']:
-		log_losses([epoch, elapsed_time_epoch, loss_identity_A, loss_identity_B, loss_identity, loss_gan_AB, loss_gan_BA, loss_gan, loss_cycle_A, loss_cycle_B, loss_cycle, loss_G, loss_real_A, loss_real_B, loss_fake_A, loss_fake_B, loss_D_A, loss_D_B, loss_D], losses_filepath)
+		log_losses([epoch, elapsed_time_epoch, loss_identity_A.data, loss_identity_B.data, loss_identity.data, loss_gan_AB.data, loss_gan_BA.data, loss_gan.data, loss_cycle_A.data, loss_cycle_B.data, loss_cycle.data, loss_G.data, loss_real_A.data, loss_real_B.data, loss_fake_A.data, loss_fake_B.data, loss_D_A.data, loss_D_B.data, loss_D.data], losses_filepath)
 
 	# Saving models... (agin marcel ^.^)
 	if param['log']['save_weights']:
