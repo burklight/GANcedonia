@@ -333,7 +333,7 @@ with open(losses_filepath, "a") as file:
 
 def log_losses(losses_list, losses_filepath):
 	for i in range(len(losses_list)):
-		if (isinstance(lossed_list[i], float)):
+		if (isinstance(losses_list[i], float)):
 			losses_list[i] = ("%.4f" % i)
 	with open(losses_filepath, "a") as file:
 	    writer = csv.writer(file, delimiter=',')
