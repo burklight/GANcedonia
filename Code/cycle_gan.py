@@ -358,7 +358,7 @@ else:
 for epoch in range(n_epochs):
 	start_time = time.time()
 	print("##########################################################")
-	print("- EPOCH: " + str(epoch)) + "  -  " + str(time.strftime("%Y%m%d-%H:%M", start_time))
+	print("- EPOCH: " + str(epoch) + "  -  " + str(time.strftime("%Y%m%d-%H:%M", time.localtime(start_time))))
 	print("##########################################################")
 	for i, batch in enumerate(dataloader):
 
