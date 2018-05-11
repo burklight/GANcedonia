@@ -15,9 +15,9 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def createDataCSV(fruits_file, textures_file, fruits_path, textures_path):
+def createFruitsCSV(fruits_path, fruits_file, force=False):
     # If the fruits csv does not exist, create it
-    if (not os.path.isfile(dataset_file)):
+    if (not os.path.isfile(fruits_file) or force):
         # Create the fruits name list
         names = []
         for fruit_class in os.listdir(os.path.join(fruits_path, 'Training')):
@@ -35,8 +35,10 @@ def createDataCSV(fruits_file, textures_file, fruits_path, textures_path):
         df.to_csv(fruits_file, index=False)
         del(df)
 
+
+def createTexturesCSV(textures_path, textures_file, force=False):
     # If the textures csv does not exist, create it
-    if (not os.path.isfile(textures_file)):
+    if (not os.path.isfile(textures_file) or force):
         df = pd.DataFrame(columns=['Path'])
 
         for t in os.listdir(textures_path):
@@ -48,13 +50,16 @@ def createDataCSV(fruits_file, textures_file, fruits_path, textures_path):
 class FruitsDataset(Dataset):
     """Fruits dataset."""
 
-    def __init__(self, csv_file, cl_A, cl_B, transform=None):
+    def __init__(self, path_to_file, csv_file, cl_A, cl_B, transform=None, force=False):
         """
         Args:
+            path_to_file (string): Path to the fruits images dataset folder.
             csv_file (string): Path to the csv file with annotations.
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
+
+        createFruitsCSV(path_to_file, csv_file);
         aux = pd.read_csv(csv_file)
         self.fruits_A_idx = aux[aux['Class'] == cl_A]
         self.fruits_B_idx = aux[aux['Class'] == cl_B]
@@ -77,13 +82,15 @@ class FruitsDataset(Dataset):
 
 class TexturesDataset(Dataset):
 
-    def __init__(self, csv_file, transform=None):
+    def __init__(self, path_to_file, csv_file, transform=None, force=False):
         """
         Args:
+            path_to_file (string): Path to the fruits images dataset folder.
             csv_file (string): Path to the csv file with annotations.
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
+        createTexturesCSV(path_to_file, csv_file)
         self.textures = pd.read_csv(csv_file)
         self.transform = transform
 

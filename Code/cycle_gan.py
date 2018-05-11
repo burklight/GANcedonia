@@ -319,7 +319,7 @@ def sample_images(folder, epoch):
 	## Gudardar-les després és cosa d'en Marcel
 	img_sample = torch.cat((real_A.data+0.5, fake_B.data+0.5, recov_A.data+0.5, \
 		real_B.data+0.5, fake_A.data+0.5, recov_B.data+0.5), 0)
-	save_image(img_sample, folder+'/images/'+str(epoch)+'.png', nrow=5, normalize=True)
+	save_image(img_sample, folder+'/images/'+str(epoch)+'.png', nrow=5, normalize=False)
 
 
 # Initialize losses csv
@@ -327,7 +327,25 @@ losses_log='losses.csv'
 losses_filepath=os.path.join(filepath, losses_log)
 
 with open(losses_filepath, "a") as file:
-	csv_header=['Epoch', 'Elapsed', 'loss_identity_A', 'loss_identity_B', 'loss_identity','loss_gan_AB', 'loss_gan_BA', 'loss_gan', 'loss_cycle_A','loss_cycle_B','loss_cycle','loss_G', 'loss_real_A', 'loss_real_B', 'loss_fake_A','loss_fake_B','loss_D_A','loss_D_B','loss_D']
+	csv_header=['Epoch', 
+				'Elapsed', 
+				'loss_identity_A', 
+				'loss_identity_B', 
+				'loss_identity',
+				'loss_gan_AB', 
+				'loss_gan_BA', 
+				'loss_gan', 
+				'loss_cycle_A',
+				'loss_cycle_B',
+				'loss_cycle',
+				'loss_G', 
+				'loss_real_A', 
+				'loss_real_B', 
+				'loss_fake_A',
+				'loss_fake_B',
+				'loss_D_A',
+				'loss_D_B',
+				'loss_D']
 	writer = csv.writer(file, delimiter=',')
 	writer.writerow(csv_header)
 
@@ -361,6 +379,9 @@ for epoch in range(n_epochs):
 	print("- EPOCH: " + str(epoch) + "  -  " + str(time.strftime("%Y%m%d-%H:%M", time.localtime(start_time))))
 	print("##########################################################")
 	for i, batch in enumerate(dataloader):
+
+		if i>2:
+			continue
 
 		# Get model input
 		real_A = Variable(batch[0].type(Tensor))
@@ -447,7 +468,48 @@ for epoch in range(n_epochs):
 	elapsed_time_epoch = str(time.strftime("%H:%M:%S", time.gmtime(time.time() - start_time)))
 
 	if param['log']['save_losses']:
-		log_losses([epoch, elapsed_time_epoch, loss_identity_A.item(), loss_identity_B.item(), loss_identity.item(), loss_gan_AB.item(), loss_gan_BA.item(), loss_gan.item(), loss_cycle_A.item(), loss_cycle_B.item(), loss_cycle.item(), loss_G.item(), loss_real_A.item(), loss_real_B.item(), loss_fake_A.item(), loss_fake_B.item(), loss_D_A.item(), loss_D_B.item(), loss_D.item()], losses_filepath)
+		if (float(torch.__version__[:3]) > 0.3):
+			log_losses([epoch, \
+						elapsed_time_epoch, \
+						loss_identity_A.item(), \
+						loss_identity_B.item(), \
+						loss_identity.item(), \
+						loss_gan_AB.item(), \
+						loss_gan_BA.item(), \
+						loss_gan.item(), \
+						loss_cycle_A.item(), \
+						loss_cycle_B.item(), \
+						loss_cycle.item(), \
+						loss_G.item(), \
+						loss_real_A.item(), \
+						loss_real_B.item(), \
+						loss_fake_A.item(), \
+						loss_fake_B.item(), \
+						loss_D_A.item(), \
+						loss_D_B.item(), \
+						loss_D.item()], \
+						losses_filepath)
+		else:
+			log_losses([epoch, \
+						elapsed_time_epoch, \
+						loss_identity_A.data[0], \
+						loss_identity_B.data[0], \
+						loss_identity.data[0], \
+						loss_gan_AB.data[0], \
+						loss_gan_BA.data[0], \
+						loss_gan.data[0], \
+						loss_cycle_A.data[0], \
+						loss_cycle_B.data[0], \
+						loss_cycle.data[0], \
+						loss_G.data[0], \
+						loss_real_A.data[0], \
+						loss_real_B.data[0], \
+						loss_fake_A.data[0], \
+						loss_fake_B.data[0], \
+						loss_D_A.data[0], \
+						loss_D_B.data[0], \
+						loss_D.data[0]], \
+						losses_filepath)
 
 	# Saving models... (agin marcel ^.^)
 	if param['log']['save_weights']:
