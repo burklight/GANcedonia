@@ -59,7 +59,7 @@ class FruitsDataset(Dataset):
                 on a sample.
         """
 
-        createFruitsCSV(path_to_file, csv_file);
+        createFruitsCSV(path_to_file, csv_file, force=force);
         aux = pd.read_csv(csv_file)
         self.fruits_A_idx = aux[aux['Class'] == cl_A]
         self.fruits_B_idx = aux[aux['Class'] == cl_B]
@@ -90,7 +90,7 @@ class TexturesDataset(Dataset):
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
-        createTexturesCSV(path_to_file, csv_file)
+        createTexturesCSV(path_to_file, csv_file, force=force)
         self.textures = pd.read_csv(csv_file)
         self.transform = transform
 
