@@ -10,7 +10,7 @@ input:
     force: False
 train:
     n_epochs: 250
-    batch_size: 1
+    batch_size: 10
     learning_rate: 2e-4
     beta_1: 0.9
     beta_2: 0.99
@@ -31,7 +31,7 @@ log:
     save_weight_interval: 10
     save_image_interval: 1
     save_path: auto
-    save_path_folder_flag: orange_peach
+    save_path_folder_flag: 'all_losses'
     print_batch_interval: 10
     save_losses: true
 resnet:

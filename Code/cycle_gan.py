@@ -185,7 +185,7 @@ def weights_init(m):
 		torch.nn.init.constant_(m.bias.data, 0.0)
 
 if param['log']['save_path']=='auto':
-	filepath=os.path.join('Log', strftime("%Y%m%d_%H%M", gmtime())+'_'+param['log']['save_path_folder_flag'])
+	filepath=os.path.join('Log', strftime("%Y%m%d_%H%M", gmtime())+'_'+param['input']['fruit_1']+'_'+param['input']['fruit_2']+'_'+param['log']['save_path_folder_flag'])
 else:
 	filepath=os.path.join('Log',(param['log']['save_path']+'_'+param['log']['save_path_folder_flag']))
 
@@ -381,9 +381,6 @@ for epoch in range(n_epochs):
 	print("- EPOCH: " + str(epoch) + "  -  " + str(time.strftime("%Y%m%d-%H:%M", time.localtime(start_time))))
 	print("##########################################################")
 	for i, batch in enumerate(dataloader):
-
-		if i>2:
-			continue
 
 		# Get model input
 		real_A = Variable(batch[0].type(Tensor))
