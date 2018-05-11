@@ -1,11 +1,16 @@
 input:
     fruit_1: Orange
-    fruit_2: Peach
+    fruit_2: Raspberry
     img_x: 128
     img_y: 128
+    fruits_file: Dataset/dataset_index.csv
+    textures_file: Dataset/textures_index.csv
+    fruits_path: Dataset/fruits-360
+    textures_path: Dataset/textures
+    force: False
 train:
     n_epochs: 250
-    batch_size: 10
+    batch_size: 1
     learning_rate: 2e-4
     beta_1: 0.9
     beta_2: 0.99

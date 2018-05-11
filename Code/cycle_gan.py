@@ -292,11 +292,13 @@ fake_B_buffer = imageBuffer()
 
 
 # Prepare the data
-fruits_file = 'Dataset/dataset_index.csv'
-textures_file = 'Dataset/textures_index.csv'
-textures = db.TexturesDataset(csv_file=textures_file)
-imgs_db = db.FruitsDataset(csv_file=fruits_file, cl_A=param['input']['fruit_1'], cl_B=param['input']['fruit_2'],
-						transform = transforms.Compose([db.ChangeBackground(textures),db.myReshape()]))
+textures = db.TexturesDataset(path_to_file=param['input']['textures_path'],\
+							  csv_file=param['input']['textures_file'])
+imgs_db = db.FruitsDataset(path_to_file=param['input']['fruits_path'],\
+						   csv_file=param['input']['fruits_file'],\
+						   cl_A=param['input']['fruit_1'], \
+						   cl_B=param['input']['fruit_2'], \
+						   transform = transforms.Compose([db.ChangeBackground(textures),db.myReshape()]))
 
 dataloader = DataLoader(imgs_db, batch_size=batch_size,
 						shuffle=True, num_workers=4, drop_last=True)
@@ -327,20 +329,20 @@ losses_log='losses.csv'
 losses_filepath=os.path.join(filepath, losses_log)
 
 with open(losses_filepath, "a") as file:
-	csv_header=['Epoch', 
-				'Elapsed', 
-				'loss_identity_A', 
-				'loss_identity_B', 
+	csv_header=['Epoch',
+				'Elapsed',
+				'loss_identity_A',
+				'loss_identity_B',
 				'loss_identity',
-				'loss_gan_AB', 
-				'loss_gan_BA', 
-				'loss_gan', 
+				'loss_gan_AB',
+				'loss_gan_BA',
+				'loss_gan',
 				'loss_cycle_A',
 				'loss_cycle_B',
 				'loss_cycle',
-				'loss_G', 
-				'loss_real_A', 
-				'loss_real_B', 
+				'loss_G',
+				'loss_real_A',
+				'loss_real_B',
 				'loss_fake_A',
 				'loss_fake_B',
 				'loss_D_A',
