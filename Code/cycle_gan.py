@@ -530,7 +530,7 @@ for epoch in range(n_epochs+1):
 
 			torch.save(state_G_AB, os.path.join(filepath,'models','G_AB_epoch_' + str(epoch) + '.pkl'))
 			if (last_model_saved_epoch)>=0:
-				os.remove(os.path.join(filepath,'G_AB_epoch_' + str(last_model_saved_epoch) + '.pkl'))
+				os.remove(os.path.join(filepath,'models','G_AB_epoch_' + str(last_model_saved_epoch) + '.pkl'))
 
 			state_G_BA = {
 				'epoch': epoch+previous_epochs,
@@ -541,7 +541,7 @@ for epoch in range(n_epochs+1):
 
 			torch.save(state_G_BA, os.path.join(filepath,'models','G_BA_epoch_' + str(epoch) + '.pkl'))
 			if (last_model_saved_epoch)>=0:
-				os.remove(os.path.join(filepath,'G_BA_epoch_' + str(last_model_saved_epoch) + '.pkl'))
+				os.remove(os.path.join(filepath,'models','G_BA_epoch_' + str(last_model_saved_epoch) + '.pkl'))
 
 			# Saving Discriminator
 			state_D_A = {
@@ -552,7 +552,7 @@ for epoch in range(n_epochs+1):
 
 			torch.save(state_D_A, os.path.join(filepath,'models','D_A_epoch_' + str(epoch) + '.pkl'))
 			if (last_model_saved_epoch)>=0:
-				os.remove(os.path.join(filepath,'D_A_epoch_' + str(last_model_saved_epoch) + '.pkl'))
+				os.remove(os.path.join(filepath,'models','D_A_epoch_' + str(last_model_saved_epoch) + '.pkl'))
 
 			state_D_B = {
 				'epoch': epoch+previous_epochs,
@@ -562,7 +562,7 @@ for epoch in range(n_epochs+1):
 
 			torch.save(state_D_B, os.path.join(filepath,'models','D_B_epoch_' + str(epoch) + '.pkl'))
 			if (last_model_saved_epoch)>=0:
-				os.remove(os.path.join(filepath,'D_B_epoch_' + str(last_model_saved_epoch) + '.pkl'))
+				os.remove(os.path.join(filepath,'models','D_B_epoch_' + str(last_model_saved_epoch) + '.pkl'))
 
 			last_model_saved_epoch = epoch
 
