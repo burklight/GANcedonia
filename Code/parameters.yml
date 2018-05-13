@@ -10,7 +10,7 @@ input:
     force: False
 train:
     n_epochs: 250
-    batch_size: 10
+    batch_size: 1
     learning_rate: 2e-4
     beta_1: 0.9
     beta_2: 0.99
@@ -19,6 +19,7 @@ train:
     patch_x: 26
     patch_y: 26
     patch_sep: 25
+    test_mode: true
 decay:
     rate: 0.01
     epoch_start: 100
@@ -28,7 +29,7 @@ load:
 log:
     save_weights: true
     save_imgs: true
-    save_weight_interval: 10
+    save_weight_interval: 1
     save_image_interval: 1
     save_path: auto
     save_path_folder_flag: 'all_losses'

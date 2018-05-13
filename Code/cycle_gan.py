@@ -15,6 +15,7 @@ import os
 from time import gmtime, strftime
 from torchvision.utils import save_image
 import csv
+import shutil
 
 
 # Import parameters
@@ -189,23 +190,19 @@ if param['log']['save_path']=='auto':
 else:
 	filepath=os.path.join('Log',(param['log']['save_path']+'_'+param['log']['save_path_folder_flag']))
 
-# Create folders if they do not exist
-
-if not os.path.exists(os.path.join(filepath,'G_AB')):
-	os.makedirs(os.path.join(filepath,'G_AB'))
-
-if not os.path.exists(os.path.join(filepath,'G_BA')):
-	os.makedirs(os.path.join(filepath,'G_BA'))
-
-if not os.path.exists(os.path.join(filepath,'D_A')):
-	os.makedirs(os.path.join(filepath,'D_A'))
-
-if not os.path.exists(os.path.join(filepath,'D_B')):
-	os.makedirs(os.path.join(filepath,'D_B'))
-
+# Create folders if they do not exist#
 if not os.path.exists(os.path.join(filepath,'images')):
 	os.makedirs(os.path.join(filepath,'images'))
 
+if not os.path.exists(os.path.join(filepath,'metadata')):
+	os.makedirs(os.path.join(filepath,'metadata'))
+
+if not os.path.exists(os.path.join(filepath,'models')):
+	os.makedirs(os.path.join(filepath,'models'))
+
+#Save executed code and parameters for future debugging if needed
+shutil.copy2('cycle_gan.py', os.path.join(filepath,'metadata'))
+shutil.copy2('parameters.yml', os.path.join(filepath,'metadata'))
 
 if param['load']['load_weights']:
 	G_AB_state = torch.load(os.path.join(filepath,'G_AB','epoch_'+str(param['load']['load_epoch'])+'.pkl'))
@@ -326,7 +323,7 @@ def sample_images(folder, epoch):
 
 # Initialize losses csv
 losses_log='losses.csv'
-losses_filepath=os.path.join(filepath, losses_log)
+losses_filepath=os.path.join(filepath, 'metadata', losses_log)
 
 with open(losses_filepath, "a") as file:
 	csv_header=['Epoch',
@@ -374,13 +371,17 @@ if param['load']['load_weights']:
 else:
 	previous_epochs = 0
 
+last_model_saved_epoch = -1
 
-for epoch in range(n_epochs):
+for epoch in range(n_epochs+1):
 	start_time = time.time()
 	print("##########################################################")
 	print("- EPOCH: " + str(epoch) + "  -  " + str(time.strftime("%Y%m%d-%H:%M", time.localtime(start_time))))
 	print("##########################################################")
 	for i, batch in enumerate(dataloader):
+
+		if (param['train']['test_mode'] and (i>1)):
+			continue
 
 		# Get model input
 		real_A = Variable(batch[0].type(Tensor))
@@ -513,6 +514,7 @@ for epoch in range(n_epochs):
 	# Saving models... (agin marcel ^.^)
 	if param['log']['save_weights']:
 		if epoch % param['log']['save_weight_interval'] == 0:
+
 		# Saving Generator
 			state_G_AB = {
 				'epoch': epoch+previous_epochs,
@@ -521,7 +523,9 @@ for epoch in range(n_epochs):
 
 			}
 
-			torch.save(state_G_AB, os.path.join(filepath,'G_AB','epoch_' + str(epoch+1) + '.pkl'))
+			torch.save(state_G_AB, os.path.join(filepath,'models','G_AB_epoch_' + str(epoch) + '.pkl'))
+			if (last_model_saved_epoch)>=0:
+				os.remove(os.path.join(filepath,'G_AB_epoch_' + str(last_model_saved_epoch) + '.pkl'))
 
 			state_G_BA = {
 				'epoch': epoch+previous_epochs,
@@ -530,24 +534,32 @@ for epoch in range(n_epochs):
 
 			}
 
-			torch.save(state_G_AB, os.path.join(filepath,'G_BA','epoch_' + str(epoch+1) + '.pkl'))
+			torch.save(state_G_BA, os.path.join(filepath,'models','G_BA_epoch_' + str(epoch) + '.pkl'))
+			if (last_model_saved_epoch)>=0:
+				os.remove(os.path.join(filepath,'G_BA_epoch_' + str(last_model_saved_epoch) + '.pkl'))
 
 			# Saving Discriminator
 			state_D_A = {
-				'epoch': epoch+previous_epochs+1,
+				'epoch': epoch+previous_epochs,
 				'state_dict': D_A.state_dict(),
 				'optimizer': optimizer_D_A.state_dict()
 			}
 
-			torch.save(state_D_A, os.path.join(filepath,'D_A','epoch_' + str(epoch+1) + '.pkl'))
+			torch.save(state_D_A, os.path.join(filepath,'models','D_A_epoch_' + str(epoch) + '.pkl'))
+			if (last_model_saved_epoch)>=0:
+				os.remove(os.path.join(filepath,'D_A_epoch_' + str(last_model_saved_epoch) + '.pkl'))
 
 			state_D_B = {
-				'epoch': epoch+previous_epochs+1,
+				'epoch': epoch+previous_epochs,
 				'state_dict': D_B.state_dict(),
 				'optimizer': optimizer_D_B.state_dict()
 			}
 
-			torch.save(state_D_B, os.path.join(filepath,'D_B','epoch_' + str(epoch+1) + '.pkl'))
+			torch.save(state_D_B, os.path.join(filepath,'models','D_B_epoch_' + str(epoch) + '.pkl'))
+			if (last_model_saved_epoch)>=0:
+				os.remove(os.path.join(filepath,'D_B_epoch_' + str(last_model_saved_epoch) + '.pkl'))
+
+			last_model_saved_epoch = epoch
 
 	if param['log']['save_imgs']:
 		if epoch % param['log']['save_image_interval'] == 0:
