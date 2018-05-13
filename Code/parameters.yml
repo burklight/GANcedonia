@@ -20,6 +20,7 @@ train:
     patch_y: 26
     patch_sep: 25
     test_mode: true
+    criterion_gan_loss: MSE
 decay:
     rate: 0.01
     epoch_start: 100

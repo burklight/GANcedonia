@@ -146,7 +146,12 @@ class GANgenerator(nn.Module):
 #################
 
 # Losses
-criterion_gan = nn.BCELoss()
+
+if param['train']['criterion_gan_loss']=='MSE':
+	criterion_gan = nn.MSELoss()
+else:	
+	criterion_gan = nn.BCELoss()
+
 criterion_cycle = nn.L1Loss()
 criterion_identity = nn.L1Loss()
 
