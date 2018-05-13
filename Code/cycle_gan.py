@@ -149,7 +149,7 @@ class GANgenerator(nn.Module):
 
 if param['train']['criterion_gan_loss']=='MSE':
 	criterion_gan = nn.MSELoss()
-else:	
+else:
 	criterion_gan = nn.BCELoss()
 
 criterion_cycle = nn.L1Loss()
@@ -423,7 +423,7 @@ for epoch in range(n_epochs+1):
 		loss_cycle = 0.5*(loss_cycle_A + loss_cycle_B)
 
 		# Total loss
-		loss_G = loss_gan + alpha_cycle * loss_cycle_A + alpha_identy * loss_identity
+		loss_G = loss_gan + alpha_cycle * loss_cycle + alpha_identy * loss_identity
 
 		# Backpropagate the gradient of the loss
 		loss_G.backward()
