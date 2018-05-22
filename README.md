@@ -31,13 +31,13 @@ sudo apt-get update
 sudo apt-get install cuda
 ```
 
-- Installation of Pytorch 3.6 for Python 3.6
+- Installation of Pytorch 0.4 for Python 3.6
 
 ```
 sudo -H pip3 install http://download.pytorch.org/whl/cu91/torch-0.4.0-cp36-cp36m-linux_x86_64.whl 
 sudo -H pip3 install torchvision
 ```
-- Installation of Pytorch 3.6 for Python 3.5
+- Installation of Pytorch 0.4 for Python 3.5
 
 ```
 sudo -H pip3 install http://download.pytorch.org/whl/cu91/torch-0.4.0-cp36-cp35m-linux_x86_64.whl 
