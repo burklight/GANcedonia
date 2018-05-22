@@ -410,7 +410,7 @@ for epoch in range(n_epochs+1):
 
 		# Set GAN loss
 		loss_gan_AB = criterion_gan(D_B(fake_B), valid) # the discriminator finds B real enough
-		loss_gan_BA = criterion_gan(D_A(fake_A), valid) # the discriminarot finds A real enough
+		loss_gan_BA = criterion_gan(D_A(fake_A), valid) # the discriminator finds A real enough
 		loss_gan = 0.5*(loss_gan_AB + loss_gan_BA)
 
 		# "recover" the two images
