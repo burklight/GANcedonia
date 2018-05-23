@@ -8,6 +8,12 @@ The main differences with the original paper are:
 
 ![alt text](https://github.com/burklight/GANcedonia/blob/master/images/example_gancedonia.png)
 
+## Authors
+
+- [Miquel Larsson](https://github.com/miqlar) 
+- [Marcel Catà](https://github.com/marcelcata)
+- [Borja Rodríguez](https://github.com/burklight)
+
 ## Dataset
 
 The dataset used for this repository is the [Kaggle Fruits 360](https://www.kaggle.com/moltean/fruits) presented by [Muresan and Oltean](https://arxiv.org/pdf/1712.00580.pdf).
